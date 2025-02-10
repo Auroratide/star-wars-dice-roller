@@ -1,17 +1,14 @@
 const socket = new WebSocket("ws://localhost:3000/connection")
 
-document.querySelector("#input").addEventListener("input", (e) => {
-   console.log("Sending: ", e.target.value)
-
-   socket.send(e.target.value)
-})
-
 socket.addEventListener("open", () => {
-   console.log("Opened connection")
+	console.log("Opened connection")
 })
 
 socket.addEventListener("message", (e) => {
-   console.log("Received: ", e.data)
+	const data = JSON.parse(e.data)
+	console.log("Received: ", data)
 
-   document.querySelector("#output").textContent = e.data
+	if (data.type === "roll result") {
+		document.querySelector(`#${data.forid}`).showResult(data.dice)
+	}
 })
