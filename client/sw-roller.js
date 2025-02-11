@@ -1,5 +1,27 @@
 import { SwIconElement } from "./sw-icon.js"
 
+const EMPTY_RESULT = {
+	dice: {
+		ability: [],
+		proficiency: [],
+		boost: [],
+		difficulty: [],
+		challenge: [],
+		setback: [],
+		force: [],
+	},
+	summary: {
+		success: 0,
+		sideEffect: 0,
+		triumphs: 0,
+		despair: 0,
+		force: {
+			light: 0,
+			dark: 0,
+		},
+	},
+}
+
 export class SwRollerElement extends HTMLElement {
 	static html = `
 		<form method="post" action="roll">
@@ -237,6 +259,10 @@ export class SwRollerElement extends HTMLElement {
 		this.#showSummary(result.summary)
 	}
 
+	changeField(field, value) {
+		this.shadowRoot.querySelector(`input[name="${field}"]`).value = value
+	}
+
 	#showRolls(rolls) {
 		Object.entries(rolls).forEach(([dieType, results]) => {
 			const ul = this.shadowRoot.querySelector(`#${dieType}-rolls`)
@@ -285,27 +311,7 @@ export class SwRollerElement extends HTMLElement {
 		})
 
 		form?.addEventListener("reset", () => {
-			this.showResult({
-				dice: {
-					ability: [],
-					proficiency: [],
-					boost: [],
-					difficulty: [],
-					challenge: [],
-					setback: [],
-					force: [],
-				},
-				summary: {
-					success: 0,
-					sideEffect: 0,
-					triumphs: 0,
-					despair: 0,
-					force: {
-						light: 0,
-						dark: 0,
-					},
-				},
-			})
+			this.showResult(EMPTY_RESULT)
 		})
 
 		inputs?.forEach((input) => {
@@ -320,7 +326,20 @@ export class SwRollerElement extends HTMLElement {
 					e.target.value = "0"
 				}
 			})
+
+			input.addEventListener("input", (e) => {
+				this.#dispatchChange(e.target.name, e.target.value)
+			})
 		})
+	}
+
+	#dispatchChange = (field, value) => {
+		this.dispatchEvent(new CustomEvent("change", {
+			detail: {
+				field,
+				value,
+			},
+		}))
 	}
 
 	#createRoot = () => {

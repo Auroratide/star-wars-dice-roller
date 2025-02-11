@@ -32,10 +32,10 @@ fastify.register(async (fastify) => {
 		clients.add(socket)
 
 		socket.on("message", (message) => {
-			for (const client of clients) {
-				if (client !== socket && client.readyState === 1) {
-					client.send(message.toString())
-				}
+			const json = JSON.parse(message.toString())
+
+			if (json.type === "field change") {
+				sendToAll(json, socket)
 			}
 		})
 
