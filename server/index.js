@@ -34,7 +34,7 @@ fastify.register(async (fastify) => {
 		socket.on("message", (message) => {
 			const json = JSON.parse(message.toString())
 
-			if (json.type === "field change") {
+			if (json.type === "field change" || json.type === "form reset") {
 				sendToAll(json, socket)
 			}
 		})

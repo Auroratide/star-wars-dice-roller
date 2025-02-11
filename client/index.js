@@ -20,6 +20,10 @@ socket.addEventListener("message", (e) => {
 	if (data.type === "field change") {
 		rollers.find((it) => it.id === data.forid)?.changeField?.(data.field, data.value)
 	}
+
+	if (data.type === "form reset") {
+		rollers.find((it) => it.id === data.forid)?.reset?.()
+	}
 })
 
 rollers.forEach((roller) => {
@@ -29,6 +33,13 @@ rollers.forEach((roller) => {
 			forid: e.target.id,
 			field: e.detail.field,
 			value: e.detail.value,
+		}))
+	})
+
+	roller.addEventListener("reset", (e) => {
+		socket.send(JSON.stringify({
+			type: "form reset",
+			forid: e.target.id,
 		}))
 	})
 })

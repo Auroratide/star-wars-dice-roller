@@ -263,6 +263,12 @@ export class SwRollerElement extends HTMLElement {
 		this.shadowRoot.querySelector(`input[name="${field}"]`).value = value
 	}
 
+	reset() {
+		this.#lockDispatch(() => {
+			this.shadowRoot.querySelector("form").reset()
+		})
+	}
+
 	#showRolls(rolls) {
 		Object.entries(rolls).forEach(([dieType, results]) => {
 			const ul = this.shadowRoot.querySelector(`#${dieType}-rolls`)
@@ -312,6 +318,7 @@ export class SwRollerElement extends HTMLElement {
 
 		form?.addEventListener("reset", () => {
 			this.showResult(EMPTY_RESULT)
+			this.#dispatchReset()
 		})
 
 		inputs?.forEach((input) => {
@@ -333,13 +340,25 @@ export class SwRollerElement extends HTMLElement {
 		})
 	}
 
+	#dispatchLock = false
+	#lockDispatch = (cb) => {
+		this.#dispatchLock = true
+		cb()
+		this.#dispatchLock = false
+	}
+
+	#dispatch = (type, detail = {}) => {
+		if (!this.#dispatchLock) {
+			this.dispatchEvent(new CustomEvent(type, { detail }))
+		}
+	}
+
 	#dispatchChange = (field, value) => {
-		this.dispatchEvent(new CustomEvent("change", {
-			detail: {
-				field,
-				value,
-			},
-		}))
+		this.#dispatch("change", { field, value })
+	}
+
+	#dispatchReset = () => {
+		this.#dispatch("reset")
 	}
 
 	#createRoot = () => {
