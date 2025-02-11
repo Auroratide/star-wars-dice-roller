@@ -1,3 +1,5 @@
+import { SwIconElement } from "./sw-icon.js"
+
 export class SwRollerElement extends HTMLElement {
 	static html = `
 		<form method="post" action="roll">
@@ -6,98 +8,78 @@ export class SwRollerElement extends HTMLElement {
 				<div class="die-type d8 green">
 					<label for="ability">Ability</label>
 					<input id="ability" name="ability" type="number" min="0" max="20" value="0" step="1" />
-					<ul>
-						<li><sw-icon name="success"></sw-icon></li>
-						<li></li>
-						<li class="double"><sw-icon name="success"></sw-icon><sw-icon name="advantage"></sw-icon></li>
-						<li class="double"><sw-icon name="success"></sw-icon><sw-icon name="advantage"></sw-icon></li>
-						<li class="double"><sw-icon name="success"></sw-icon><sw-icon name="advantage"></sw-icon></li>
-						<li class="double"><sw-icon name="success"></sw-icon><sw-icon name="advantage"></sw-icon></li>
-						<li class="double"><sw-icon name="success"></sw-icon><sw-icon name="advantage"></sw-icon></li>
-					</ul>
+					<ul id="ability-rolls"></ul>
 				</div>
 				<div class="die-type d12 yellow">
 					<label for="proficiency">Proficiency</label>
 					<input id="proficiency" name="proficiency" type="number" min="0" max="20" value="0" step="1" />
-					<ul>
-						<li><sw-icon name="triumph"></sw-icon></li>
-						<li class="double"><sw-icon name="advantage"></sw-icon><sw-icon name="advantage"></sw-icon></li>
-					</ul>
+					<ul id="proficiency-rolls"></ul>
 				</div>
 				<div class="die-type d6 blue">
 					<label for="boost">Boost</label>
 					<input id="boost" name="boost" type="number" min="0" max="20" value="0" step="1" />
-					<ul>
-						<li><sw-icon name="success"></sw-icon><sw-icon name="advantage"></sw-icon></li>
-					</ul>
+					<ul id="boost-rolls"></ul>
 				</div>
 				<div class="die-type d8 purple">
 					<label for="difficulty">Difficulty</label>
 					<input id="difficulty" name="difficulty" type="number" min="0" max="20" value="0" step="1" />
-					<ul>
-						<li><sw-icon name="threat"></sw-icon><sw-icon name="failure"></sw-icon></li>
-						<li><sw-icon name="threat"></sw-icon><sw-icon name="failure"></sw-icon></li>
-						<li></li>
-					</ul>
+					<ul id="difficulty-rolls"></ul>
 				</div>
 				<div class="die-type d12 red">
 					<label for="challenge">Challenge</label>
 					<input id="challenge" name="challenge" type="number" min="0" max="20" value="0" step="1" />
-					<ul>
-						<li><sw-icon name="despair"></sw-icon></li>
-						<li><sw-icon name="threat"></sw-icon><sw-icon name="threat"></sw-icon></li>
-						<li><sw-icon name="failure"></sw-icon></li>
-					</ul>
+					<ul id="challenge-rolls"></ul>
 				</div>
 				<div class="die-type d6 black">
 					<label for="setback">Setback</label>
 					<input id="setback" name="setback" type="number" min="0" max="20" value="0" step="1" />
-					<ul>
-						<li><sw-icon name="failure"></sw-icon></li>
-						<li><sw-icon name="threat"></sw-icon></li>
-					</ul>
+					<ul id="setback-rolls"></ul>
 				</div>
 				<div class="die-type d0 white">
 					<label for="force">Force</label>
 					<input id="force" name="force" type="number" min="0" max="20" value="0" step="1" />
-					<ul>
-						<li><sw-icon name="dark"></sw-icon></li>
-						<li class="double"><sw-icon name="light"></sw-icon><sw-icon name="light"></sw-icon></li>
-					</ul>
+					<ul id="force-rolls"></ul>
 				</div>
 			</div>
 
 			<div class="actions">
-				<button class="danger" type="button">Reset</button>
+				<button class="danger" type="reset">Reset</button>
 				<button type="submit">Roll!</button>
 			</div>
 
 			<div class="summary">
 				<label for="outcome">Outcome:</label>
-				<output id="outcome">Failure (-1)</output>
+				<output id="outcome">Failure (0)</output>
 				<label for="side-effects">Side Effects:</label>
-				<output id="side-effects">Negative (-1)</output>
+				<output id="side-effects">None (0)</output>
 				<label for="critical">Critical:</label>
-				<output id="critical">1<sw-icon name="triumph"></sw-icon> 1<sw-icon name="despair"></sw-icon></output>
+				<output id="critical"></output>
 				<label for="force-result">Force:</label>
-				<output id="force-result">2<sw-icon name="light"></sw-icon> 1<sw-icon name="dark"></sw-icon></output>
+				<output id="force-result">0<sw-icon name="light"></sw-icon> 0<sw-icon name="dark"></sw-icon></output>
 			</div>
 		</form>
 	`
 
 	static css = `
+		:host {
+			display: block;
+			inline-size: 100%;
+		}
+
 		form {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
 			gap: 1.5em;
+			inline-size: 100%;
 		}
 
 		.dice-grid {
 			display: grid;
 			grid-template-columns: auto auto 1fr;
 			row-gap: 0.75em;
+			inline-size: 100%;
 		}
 
 		.die-type {
@@ -162,7 +144,7 @@ export class SwRollerElement extends HTMLElement {
 			color: var(--dark);
 			font-size: 0.875em;
 		} .die-type li.double sw-icon {
-			font-size: 0.65em;
+			font-size: 0.6em;
 		}
 
 		.d8 li::before {
@@ -250,12 +232,47 @@ export class SwRollerElement extends HTMLElement {
 	}
 
 	showResult(result) {
-		this.shadowRoot.querySelector("#summary").textContent = JSON.stringify(result)
+		console.log(result)
+		this.#showRolls(result.dice)
+		this.#showSummary(result.summary)
+	}
+
+	#showRolls(rolls) {
+		Object.entries(rolls).forEach(([dieType, results]) => {
+			const ul = this.shadowRoot.querySelector(`#${dieType}-rolls`)
+			ul.innerHTML = ""
+
+			results.forEach((result) => {
+				const li = document.createElement("li")
+				if (result.length > 1) {
+					li.classList.add("double")
+				}
+
+				[...result].forEach((symbol) => {
+					li.appendChild(SwIconElement.fromSymbol(symbol))
+				})
+
+				ul.appendChild(li)
+			})
+		})
+	}
+
+	#showSummary(summary) {
+		const outcome = this.shadowRoot.querySelector("#outcome")
+		const sideEffects = this.shadowRoot.querySelector("#side-effects")
+		const critical = this.shadowRoot.querySelector("#critical")
+		const forceResult = this.shadowRoot.querySelector("#force-result")
+
+		outcome.innerHTML = (summary.success > 0 ? "Success" : "Failure") + " " + `(${summary.success})`
+		sideEffects.innerHTML = (summary.sideEffect === 0 ? "None" : summary.sideEffect > 0 ? "Positive" : "Negative") + " " + `(${summary.sideEffect})`
+		critical.innerHTML = (summary.triumphs > 0 ? `${summary.triumphs}<sw-icon name="triumph"></sw-icon>` : "") + " " + (summary.despair > 0 ? `${summary.despair}<sw-icon name="despair"></sw-icon>` : "")
+		forceResult.innerHTML = `${summary.force.light}<sw-icon name="light"></sw-icon> ${summary.force.dark}<sw-icon name="dark"></sw-icon>`
 	}
 
 	connectedCallback() {
 		const foridField = this.shadowRoot?.querySelector("#forid")
 		const form = this.shadowRoot?.querySelector("form")
+		const inputs = this.shadowRoot?.querySelectorAll("input")
 
 		if (foridField != null) {
 			foridField.value = this.id
@@ -265,6 +282,44 @@ export class SwRollerElement extends HTMLElement {
 			e.preventDefault()
 
 			this.roll()
+		})
+
+		form?.addEventListener("reset", () => {
+			this.showResult({
+				dice: {
+					ability: [],
+					proficiency: [],
+					boost: [],
+					difficulty: [],
+					challenge: [],
+					setback: [],
+					force: [],
+				},
+				summary: {
+					success: 0,
+					sideEffect: 0,
+					triumphs: 0,
+					despair: 0,
+					force: {
+						light: 0,
+						dark: 0,
+					},
+				},
+			})
+		})
+
+		inputs?.forEach((input) => {
+			input.addEventListener("focus", (e) => {
+				if (e.target.value === "0") {
+					e.target.value = ""
+				}
+			})
+
+			input.addEventListener("blur", (e) => {
+				if (e.target.value === "") {
+					e.target.value = "0"
+				}
+			})
 		})
 	}
 

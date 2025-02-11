@@ -5,7 +5,7 @@
  */
 
 /**
- * @typedef {{{ success: number, sideEffect: number, triumph: number, despair: number, force: { light: number, dark: number } }}} Summary
+ * @typedef {{{ success: number, sideEffect: number, triumphs: number, despair: number, force: { light: number, dark: number } }}} Summary
  */
 
 const Dice = {

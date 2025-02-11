@@ -34,6 +34,24 @@ export class SwIconElement extends HTMLElement {
 		return ["name"]
 	}
 
+	static fromSymbol(symbol) {
+		const elem = new SwIconElement()
+
+		switch (symbol) {
+			case "✷": elem.setAttribute("name", "success"); break;
+			case "☋": elem.setAttribute("name", "advantage"); break;
+			case "⦽": elem.setAttribute("name", "triumph"); break;
+			case "▼": elem.setAttribute("name", "failure"); break;
+			case "⬣": elem.setAttribute("name", "threat"); break;
+			case "⎊": elem.setAttribute("name", "despair"); break;
+			case "⬤": elem.setAttribute("name", "dark"); break;
+			case "◯": elem.setAttribute("name", "light"); break;
+			default: elem.setAttribute("name", "unknown"); break;
+		}
+
+		return elem
+	}
+
 	constructor() {
 		super()
 
