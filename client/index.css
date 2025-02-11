@@ -63,6 +63,9 @@ main {
    align-items: flex-start;
    justify-content: center;
    row-gap: 2em;
+} main[inert] {
+   pointer-events: none;
+   opacity: 0.25;
 }
 
 section {
@@ -79,4 +82,40 @@ section {
 footer {
    text-align: center;
    padding-block: 2em;
+}
+
+dialog {
+   position: fixed;
+   background: var(--dark);
+   border: 0.125em solid oklch(var(--red));
+   inset: 50%;
+   transform: translate(-50%, -50%);
+   inline-size: min(25em, 95dvw);
+   color: var(--light);
+   padding: 1.5em;
+} dialog p {
+   line-height: 1.4;
+   margin-block-end: 1.5em;
+} dialog p:last-child {
+   margin: 0;
+}
+
+button {
+   font-family: inherit;
+   font-size: 1em;
+   text-align: center;
+   border: none;
+
+   --color: var(--highlight);
+   background: none;
+   color: var(--color);
+   border: 0.125em solid var(--color);
+   cursor: pointer;
+   padding: 0.25em 1em;
+   letter-spacing: 0.1ch;
+} button:hover, button:focus {
+   background: var(--color);
+   color: var(--dark);
+} button:active {
+   border-color: var(--dark);
 }

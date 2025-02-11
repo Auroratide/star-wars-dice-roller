@@ -1,5 +1,13 @@
 const rollers = [...document.querySelectorAll("sw-roller")]
+const main = document.querySelector("main")
+const connectionLostDialog = document.querySelector("#connection-lost-dialog")
+const refreshButton = document.querySelector("#refresh-button")
 const socket = new WebSocket("ws://localhost:3000/connection")
+
+function deactivateEverything() {
+	connectionLostDialog.show()
+	main.inert = true
+}
 
 socket.addEventListener("open", () => {
 	console.log("Opened connection")
@@ -7,6 +15,8 @@ socket.addEventListener("open", () => {
 
 socket.addEventListener("close", () => {
 	console.warn("Closed connection")
+
+	deactivateEverything()
 })
 
 socket.addEventListener("message", (e) => {
@@ -42,4 +52,8 @@ rollers.forEach((roller) => {
 			forid: e.target.id,
 		}))
 	})
+})
+
+refreshButton.addEventListener("click", () => {
+	window.location.reload()
 })
