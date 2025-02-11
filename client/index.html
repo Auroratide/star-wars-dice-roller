@@ -1,20 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>Star Wars Dice Roller</title>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Tektur:wght@400..900&display=swap" rel="stylesheet" />
+
 		<link rel="stylesheet" href="/index.css" />
+		<script type="module" src="/sw-icon.js"></script>
 		<script type="module" src="/sw-roller.js"></script>
 		<script type="module" src="/index.js"></script>
 	</head>
 	<body>
 		<header>
-			<h1>Star Wars Dice Roller</h1>
+			<h1><span>Star Wars</span><span>Dice Roller</span></h1>
 		</header>
 		<main>
 			<section>
 				<h2>Chase</h2>
 				<sw-roller id="chase"></sw-roller>
 			</section>
+			<section>
+				<h2>Kathy</h2>
+				<sw-roller id="kathy"></sw-roller>
+			</section>
+			<section>
+				<h2>Andrew</h2>
+				<sw-roller id="andrew"></sw-roller>
+			</section>
+			<section>
+				<h2>Timothy</h2>
+				<sw-roller id="timothy"></sw-roller>
+			</section>
 		</main>
+		<footer>
+			<p>Made by <a href="https://auroratide.com">Auroratide</a></p>
+		</footer>
 	</body>
 </html>
