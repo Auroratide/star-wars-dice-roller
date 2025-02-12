@@ -5,6 +5,7 @@ import Websocket from "@fastify/websocket"
 import Multipart from "@fastify/multipart"
 import { roll } from "./roll.js"
 import { rollResultMessage } from "./messages.js"
+import { state, updateDiceValue, updateResult, reset } from "./state.js"
 
 const PORT = 3000
 
@@ -34,8 +35,21 @@ fastify.register(async (fastify) => {
 		socket.on("message", (message) => {
 			const json = JSON.parse(message.toString())
 
-			if (json.type === "field change" || json.type === "form reset") {
+			if (json.type === "field change") {
+				updateDiceValue(json.forid, json.field, json.value)
 				sendToAll(json, socket)
+			}
+
+			if (json.type === "form reset") {
+				reset(json.forid)
+				sendToAll(json, socket)
+			}
+
+			if (json.type === "initialization") {
+				socket.send(JSON.stringify({
+					type: "initialization",
+					state: state,
+				}))
 			}
 		})
 
@@ -49,6 +63,7 @@ function broadcastRoll(forid, dice) {
 	const result = roll(dice)
 
 	fastify.log.debug(result)
+	updateResult(forid, result)
 	sendToAll(rollResultMessage(forid, result))
 }
 

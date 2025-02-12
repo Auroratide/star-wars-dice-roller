@@ -254,7 +254,6 @@ export class SwRollerElement extends HTMLElement {
 	}
 
 	showResult(result) {
-		console.log(result)
 		this.#showRolls(result.dice)
 		this.#showSummary(result.summary)
 	}
@@ -267,6 +266,11 @@ export class SwRollerElement extends HTMLElement {
 		this.#lockDispatch(() => {
 			this.shadowRoot.querySelector("form").reset()
 		})
+	}
+
+	setAll(state) {
+		Object.entries(state.dice).forEach(([ability, value]) => this.changeField(ability, value))
+		this.showResult(state.result)
 	}
 
 	#showRolls(rolls) {

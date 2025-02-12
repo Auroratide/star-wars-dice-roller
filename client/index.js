@@ -11,6 +11,10 @@ function deactivateEverything() {
 
 socket.addEventListener("open", () => {
 	console.log("Opened connection")
+
+	socket.send(JSON.stringify({
+		type: "initialization",
+	}))
 })
 
 socket.addEventListener("close", () => {
@@ -33,6 +37,12 @@ socket.addEventListener("message", (e) => {
 
 	if (data.type === "form reset") {
 		rollers.find((it) => it.id === data.forid)?.reset?.()
+	}
+
+	if (data.type === "initialization") {
+		Object.entries(data.state).forEach(([id, state]) => {
+			rollers.find((it) => it.id === id)?.setAll?.(state)
+		})
 	}
 })
 
