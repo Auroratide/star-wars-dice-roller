@@ -2,7 +2,7 @@ const rollers = [...document.querySelectorAll("sw-roller")]
 const main = document.querySelector("main")
 const connectionLostDialog = document.querySelector("#connection-lost-dialog")
 const refreshButton = document.querySelector("#refresh-button")
-const socket = new WebSocket("ws://localhost:3000/connection")
+const socket = new WebSocket("/connection")
 
 function deactivateEverything() {
 	connectionLostDialog.show()
